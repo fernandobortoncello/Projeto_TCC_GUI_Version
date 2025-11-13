@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<!--
+  CORREÇÃO: O atributo 'fx:controller' que causou o erro foi REMOVIDO da tag TabPane abaixo.
+-->
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <tabs>
+        <Tab text="Dashboard">
+            <content>
+                <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0" style="-fx-background-color: #f4f7f6;">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="60.0" prefWidth="200.0" spacing="20.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+                            <children>
+                                <Label fx:id="lblNomeAluno" text="Bem-vindo(a), [Nome Aluno]">
+                                    <font>
+                                        <Font name="System Bold" size="24.0" />
+                                    </font>
+                                </Label>
+                                <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Button fx:id="btnAlunoLogout" mnemonicParsing="false" onAction="#fazerLogout" style="-fx-background-color: #F0A000;" text="Logout" textFill="WHITE">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
+                            <padding>
+                                <Insets left="20.0" right="20.0" />
+                            </padding>
+                        </HBox>
+                        <Label fx:id="lblStatusGlobalAluno" text="Status global..." textFill="#00a0f0">
+                            <font>
+                                <Font name="System Italic" size="14.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </Tab>
+        <Tab text="Cadastrar Tema (UC1)">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                    <children>
+                        <VBox layoutX="50.0" layoutY="30.0" prefWidth="600.0" spacing="10.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="30.0">
+                            <children>
+                                <Label text="Título do TCC">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                                <TextField fx:id="txtTemaTitulo" promptText="Ex: Sistema de Gestão de TCCs" />
+                                <Label text="Descrição / Resumo">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                                <TextArea fx:id="txtTemaDescricao" prefHeight="150.0" promptText="Descreva a ideia principal, objetivos e escopo do seu trabalho..." wrapText="true" />
+                                <Button fx:id="btnCadastrarTema" mnemonicParsing="false" onAction="#cadastrarTema" prefHeight="40.0" prefWidth="600.0" style="-fx-background-color: #00A0F0; -fx-text-fill: white;" text="Cadastrar Proposta de Tema (UC1)">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </children></AnchorPane>
+            </content>
+        </Tab>
+        <Tab text="Enviar Correções (UC5)">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            </content>
+        </Tab>
+    </tabs>
+</TabPane>
