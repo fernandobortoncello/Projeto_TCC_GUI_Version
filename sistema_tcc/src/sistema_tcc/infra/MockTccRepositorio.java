@@ -1,30 +1,30 @@
 package sistema_tcc.infra;
 
-import sistema_tcc.dominio.TCC;
-import sistema_tcc.dominio.TccStatus; // Import necessário
+import sistema_tcc.dominio.*;
+import sistema_tcc.repositorio.AlunoRepositorio;
+import sistema_tcc.repositorio.ProfessorRepositorio;
 import sistema_tcc.repositorio.TccRepositorio;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors; // Import necessário
+import java.util.stream.Collectors;
 
 /**
  * Simulação de um banco de dados de TCCs em memória.
- *
- * CORREÇÃO: Implementado o novo método 'buscarPorStatus'.
  */
 public class MockTccRepositorio implements TccRepositorio {
 
     private final Map<String, TCC> db = new HashMap<>();
     private long sequence = 0;
 
-    public MockTccRepositorio() {
-        // Dados de exemplo que o ProfessorControlador espera encontrar
-        System.out.println("LOG DB: TCC Análise de Padrões GRASP salvo. Status: PROPOSTA");
-        System.out.println("LOG DB: TCC Modelagem de Domínio Ágil salvo. Status: PROPOSTA");
-    }
+    /**
+     * Popular TCCs de exemplo (agora depende de Alunos e Professores).
+     */
+
+
 
     @Override
     public TCC salvar(TCC tcc) {
@@ -46,14 +46,45 @@ public class MockTccRepositorio implements TccRepositorio {
         return new ArrayList<>(db.values());
     }
 
-    /**
-     * IMPLEMENTAÇÃO DO MÉTODO (RF004)
-     */
     @Override
     public List<TCC> buscarPorStatus(TccStatus status) {
-        // Filtra o "banco de dados" em memória e retorna TCCs com o status PROPOSTA
         return db.values().stream()
                 .filter(tcc -> tcc.getStatus() == status)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TCC> buscarPorOrientador(Professor professor) {
+        return db.values().stream()
+                .filter(tcc -> tcc.getOrientador() != null &&
+                        tcc.getOrientador().getId().equals(professor.getId()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public TCC buscarPorAluno(Aluno aluno) {
+        return db.values().stream()
+                .filter(tcc -> tcc.getAutor().getId().equals(aluno.getId()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public List<TCC> buscarTccsParaDefinirBanca(Professor professor) {
+        return db.values().stream()
+                .filter(tcc -> tcc.getOrientador() != null &&
+                        tcc.getOrientador().getId().equals(professor.getId()) &&
+                        tcc.getStatus() == TccStatus.EM_ANDAMENTO &&
+                        !tcc.getOrientacoes().isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TCC> buscarTccsParaFinalizar(Professor professor) {
+        return db.values().stream()
+                .filter(tcc -> tcc.getOrientador() != null &&
+                        tcc.getOrientador().getId().equals(professor.getId()) &&
+                        tcc.getStatus() == TccStatus.AGUARDANDO_BANCA)
                 .collect(Collectors.toList());
     }
 }

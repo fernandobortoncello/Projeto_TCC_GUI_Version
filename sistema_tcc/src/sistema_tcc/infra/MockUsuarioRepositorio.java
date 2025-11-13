@@ -17,7 +17,7 @@ public class MockUsuarioRepositorio implements UsuarioRepositorio {
 
     @Override
     public void salvarAluno(Aluno aluno) {
-        dbAlunos.put(aluno.getCpf(), aluno);
+        dbAlunos.put(aluno.getId(), aluno);
     }
 
     @Override

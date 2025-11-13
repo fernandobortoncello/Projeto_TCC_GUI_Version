@@ -3,103 +3,86 @@ package sistema_tcc.ui;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import sistema_tcc.ui.controlador.AlunoControlador;
-import sistema_tcc.ui.controlador.LoginControlador;
-import sistema_tcc.ui.controlador.ProfessorControlador;
+import sistema_tcc.AppJavaFX;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
- * Serviço central de navegação.
- * Armazena os caminhos FXML e as instâncias dos controladores.
- *
- * CORREÇÃO: O método navegarPara() foi atualizado para
- * injetar a instância do controlador no FXMLLoader antes de carregar o FXML.
- * Esta é a correção para o erro 'No controller specified'.
+ * Gerencia a navegação entre as telas (Scenes).
+ * Esta classe é crucial para a Injeção de Dependência, pois ela
+ * associa as instâncias dos Controladores (criadas no AppJavaFX)
+ * com os arquivos FXML corretos no momento da carga.
  */
 public class Navegacao {
 
     public enum Tela {
-        LOGIN,
-        ALUNO_DASHBOARD,
-        PROFESSOR_DASHBOARD
+        LOGIN("vista/LoginVista.fxml"),
+        ALUNO_DASHBOARD("vista/AlunoVista.fxml"),
+        PROFESSOR_DASHBOARD("vista/ProfessorVista.fxml");
+
+        private final String fxml;
+        Tela(String fxml) { this.fxml = fxml; }
+        public String getFxml() { return fxml; }
     }
 
     private final Stage stagePrincipal;
-    private Scene cenaPrincipal;
-
-    // Armazena os caminhos para os FXMLs
-    private final Map<Tela, String> telas = new HashMap<>();
-
-    // Armazena as INSTÂNCIAS dos controladores (injetadas pelo AppJavaFX)
     private final Map<Tela, Object> controladores = new HashMap<>();
 
     public Navegacao(Stage stagePrincipal) {
         this.stagePrincipal = stagePrincipal;
-        configurarRotas();
-    }
-
-    private void configurarRotas() {
-        telas.put(Tela.LOGIN, "/sistema_tcc/ui/vista/LoginVista.fxml");
-        telas.put(Tela.ALUNO_DASHBOARD, "/sistema_tcc/ui/vista/AlunoVista.fxml");
-        telas.put(Tela.PROFESSOR_DASHBOARD, "/sistema_tcc/ui/vista/ProfessorVista.fxml");
     }
 
     /**
-     * Chamado pelo AppJavaFX para registrar as instâncias dos controladores.
+     * Chamado pelo AppJavaFX para registrar os controladores instanciados.
      */
     public void registrarControlador(Tela tela, Object controlador) {
-        if (controlador == null) {
-            throw new IllegalArgumentException("Controlador não pode ser nulo para tela: " + tela);
-        }
         controladores.put(tela, controlador);
     }
 
     /**
-     * O método central que carrega e exibe uma nova tela.
+     * Carrega e exibe uma nova tela.
      */
     public void navegarPara(Tela tela) {
         try {
-            String caminhoFxml = telas.get(tela);
-            if (caminhoFxml == null) {
-                throw new IOException("Nenhum caminho FXML definido para a tela: " + tela);
-            }
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(caminhoFxml));
-
-            // --- ESTA É A CORREÇÃO ---
-            // 1. Buscar o controlador que o AppJavaFX já instanciou
+            // 1. Busca o controlador que já foi instanciado e injetado
             Object controlador = controladores.get(tela);
             if (controlador == null) {
-                throw new IllegalStateException("Nenhum controlador foi registrado para a tela: " + tela + ". Verifique AppJavaFX.java.");
+                throw new IllegalStateException("Controlador não registrado para a tela: " + tela);
             }
 
-            // 2. Definir o controlador no loader ANTES de chamar .load()
-            loader.setController(controlador);
-            // --- FIM DA CORREÇÃO ---
+            // 2. Encontra o arquivo FXML
+            URL fxmlUrl = AppJavaFX.class.getResource("ui/" + tela.getFxml());
+            if (fxmlUrl == null) {
+                throw new IOException("Não foi possível encontrar o FXML: " + tela.getFxml());
+            }
 
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+
+            // 3. ATRIBUI O CONTROLADOR MANUALMENTE (Injeção de Dependência)
+            // Isso previne o FXML de tentar criar uma nova instância
+            loader.setController(controlador);
+
+            // 4. Carrega a tela
             Parent root = loader.load();
 
-            if (cenaPrincipal == null) {
-                cenaPrincipal = new Scene(root);
-                stagePrincipal.setScene(cenaPrincipal);
+            // 5. Exibe a cena
+            Scene scene = stagePrincipal.getScene();
+            if (scene == null) {
+                // Define um tamanho padrão para a primeira cena
+                stagePrincipal.setScene(new Scene(root, 800, 600));
             } else {
-                cenaPrincipal.setRoot(root);
+                stagePrincipal.getScene().setRoot(root);
             }
             stagePrincipal.show();
 
         } catch (IOException | IllegalStateException e) {
+            System.err.println("Falha ao navegar para a tela: " + tela);
             e.printStackTrace();
-            // Mostrar um erro fatal para o usuário se a navegação falhar
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Erro Crítico de Navegação");
-            alert.setHeaderText("Não foi possível carregar a tela: " + tela);
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
         }
     }
 }

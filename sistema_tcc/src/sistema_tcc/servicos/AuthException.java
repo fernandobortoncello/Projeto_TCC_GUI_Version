@@ -1,8 +1,7 @@
 package sistema_tcc.servicos;
 
 /**
- * Exceção customizada para falhas de login (RF001).
- * A GUI (Controlador) irá capturar isso.
+ * Exceção customizada para falhas de login (RNF002).
  */
 public class AuthException extends Exception {
     public AuthException(String message) {

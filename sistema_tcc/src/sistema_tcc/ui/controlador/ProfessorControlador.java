@@ -1,138 +1,285 @@
 package sistema_tcc.ui.controlador;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import sistema_tcc.dominio.Professor;
-import sistema_tcc.dominio.TCC;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+import sistema_tcc.dominio.*;
 import sistema_tcc.servicos.SessaoUsuario;
 import sistema_tcc.servicos.TccServico;
 import sistema_tcc.ui.Navegacao;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * CORRIGIDO: A lógica de busca do usuário foi movida do construtor
- * para o método initialize(), que é chamado pelo JavaFX
- * após a tela ser carregada e o usuário estar logado.
+ * Controlador para a tela ProfessorVista.fxml (UC2, UC3, UC4, UC5).
  */
 public class ProfessorControlador {
 
-    // Serviços (Injetados)
+    // --- Dependências ---
     private final TccServico tccServico;
     private final Navegacao navegacao;
-    private final SessaoUsuario sessao;
+    private final SessaoUsuario sessaoUsuario;
 
-    // Atributos do FXML
+    // --- Componentes UI (Geral) ---
     @FXML private Label lblNomeProfessor;
-    @FXML private Label lblStatusGlobalProfessor;
-    @FXML private ListView<String> listaTemasPropostos; // Mostra TCCs
-    @FXML private Button btnEscolherTema;
-    @FXML private Button btnProfLogout;
+    @FXML private TabPane tabPaneProfessor;
 
-    // Estado interno
+    // --- Componentes UI (Aba UC2: Escolher Tema) ---
+    @FXML private ListView<TCC> listaTemasPropostos;
+    @FXML private Label lblStatusUC2;
+
+    // --- Componentes UI (Aba UC3: Registrar Orientação) ---
+    @FXML private ComboBox<TCC> comboTccsOrientandos;
+    @FXML private DatePicker datePickerOrientacao;
+    @FXML private TextArea textAreaDescricao;
+    @FXML private Label lblStatusUC3;
+
+    // --- Componentes UI (Aba UC4: Definir Banca) ---
+    @FXML private ComboBox<TCC> comboTccsParaBanca;
+    @FXML private ListView<Professor> listaProfessoresDisponiveis;
+    @FXML private DatePicker datePickerBanca;
+    @FXML private Label lblStatusUC4;
+
+    // --- Componentes UI (Aba UC5: Finalizar TCC) ---
+    @FXML private ComboBox<TCC> comboTccsParaFinalizar;
+    @FXML private TextField txtNotaFinal;
+    @FXML private TextArea txtAnotacoesFinais;
+    @FXML private Label lblStatusUC5;
+
     private Professor profLogado;
-    private ObservableList<String> temasObservaveis = FXCollections.observableArrayList();
-    private List<TCC> tccsPropostos; // Mapeia a lista de Strings para os objetos TCC
 
-    /**
-     * Construtor para Injeção de Dependência.
-     */
-    public ProfessorControlador(TccServico tccServico, Navegacao navegacao) {
+    public ProfessorControlador(TccServico tccServico, Navegacao navegacao, SessaoUsuario sessaoUsuario) {
         this.tccServico = tccServico;
         this.navegacao = navegacao;
-        this.sessao = SessaoUsuario.getInstancia();
-        // REMOVIDO: Não buscar o usuário aqui, é muito cedo!
+        this.sessaoUsuario = sessaoUsuario;
     }
 
-    /**
-     * Chamado pelo JavaFX após a tela ser carregada.
-     */
     @FXML
     public void initialize() {
         try {
-            // AGORA é seguro buscar o usuário
-            // Esta linha chama o novo método genérico em SessaoUsuario
-            this.profLogado = sessao.getUsuarioLogado(Professor.class);
-            lblNomeProfessor.setText("Bem-vindo(a), Prof. " + profLogado.getNome());
-            lblStatusGlobalProfessor.setText("Pronto para gerenciar.");
+            this.profLogado = sessaoUsuario.getUsuarioLogado(Professor.class);
+            lblNomeProfessor.setText(profLogado.getNome());
 
-            carregarTemasPropostos();
+            // Configura a lista de professores para seleção múltipla
+            listaProfessoresDisponiveis.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+            // Carrega os dados para todas as abas
+            carregarDadosTodasAbas();
 
         } catch (IllegalStateException e) {
-            // Se algo der errado (ex: usuário não logado), mostrar erro e voltar ao login
-            exibirAlerta("Erro de Sessão", e.getMessage());
+            lblNomeProfessor.setText("ERRO DE SESSÃO");
             navegacao.navegarPara(Navegacao.Tela.LOGIN);
         }
     }
 
     /**
-     * Carrega a lista de TCCs com status PROPOSTA (RF004)
+     * Atualiza os dados de todas as abas do professor.
+     * Chamado no início e após cada ação importante.
      */
-    private void carregarTemasPropostos() {
-        // Limpa antes de carregar
-        temasObservaveis.clear();
+    private void carregarDadosTodasAbas() {
+        carregarAbaEscolherTema();
+        carregarAbaRegistrarOrientacao();
+        carregarAbaDefinirBanca();
+        carregarAbaFinalizarTCC();
+    }
 
-        // Busca do serviço
-        this.tccsPropostos = tccServico.listarTemasPropostos();
-
-        if (tccsPropostos.isEmpty()) {
-            temasObservaveis.add("Nenhum tema proposto encontrado.");
-            btnEscolherTema.setDisable(true);
-        } else {
-            // Converte a lista de TCC (objeto) para uma lista de String (para exibir)
-            List<String> titulos = tccsPropostos.stream()
-                    .map(tcc -> tcc.getTitulo() + " (Aluno: " + tcc.getAutor().getNome() + ")")
-                    .collect(Collectors.toList());
-            temasObservaveis.addAll(titulos);
-            btnEscolherTema.setDisable(false);
+    // --- Lógica da Aba UC2: Escolher Tema ---
+    private void carregarAbaEscolherTema() {
+        try {
+            List<TCC> temas = tccServico.listarTemasPropostos(); // RF004
+            listaTemasPropostos.setItems(FXCollections.observableArrayList(temas));
+            lblStatusUC2.setText(temas.size() + " temas aguardando orientador.");
+        } catch (Exception e) {
+            lblStatusUC2.setText("Erro ao carregar temas: " + e.getMessage());
         }
-
-        listaTemasPropostos.setItems(temasObservaveis);
     }
 
     @FXML
-    void escolherTema() {
-        int indexSelecionado = listaTemasPropostos.getSelectionModel().getSelectedIndex();
-
-        if (indexSelecionado < 0 || tccsPropostos.isEmpty()) {
-            exibirAlerta("Erro", "Por favor, selecione um tema da lista.");
+    private void escolherOrientador() {
+        TCC tccSelecionado = listaTemasPropostos.getSelectionModel().getSelectedItem();
+        if (tccSelecionado == null) {
+            lblStatusUC2.setText("Erro: Nenhum TCC selecionado.");
             return;
         }
 
         try {
-            // Pega o objeto TCC real da nossa lista interna (não da String)
-            TCC tccSelecionado = tccsPropostos.get(indexSelecionado);
-
-            // Chama o serviço (RF005)
-            tccServico.escolherOrientador(profLogado, tccSelecionado);
-
-            exibirAlerta("Sucesso", "Você agora é o orientador de: " + tccSelecionado.getTitulo());
-
-            // Atualiza a lista, pois o tema escolhido não está mais "proposto"
-            carregarTemasPropostos();
+            tccServico.escolherOrientador(profLogado, tccSelecionado); // RF005
+            lblStatusUC2.setText("TCC '" + tccSelecionado.getTitulo() + "' assumido com sucesso!");
+            carregarDadosTodasAbas(); // Atualiza todas as listas
 
         } catch (Exception e) {
-            exibirAlerta("Erro ao escolher tema", e.getMessage());
+            lblStatusUC2.setText("Erro: " + e.getMessage());
+        }
+    }
+
+    // --- Lógica da Aba UC3: Registrar Orientação ---
+    private void carregarAbaRegistrarOrientacao() {
+        try {
+            List<TCC> temas = tccServico.listarTCCsOrientados(profLogado);
+            comboTccsOrientandos.setItems(FXCollections.observableArrayList(temas));
+            lblStatusUC3.setText("");
+        } catch (Exception e) {
+            lblStatusUC3.setText("Erro ao carregar TCCs: " + e.getMessage());
         }
     }
 
     @FXML
-    void fazerLogout() {
-        sessao.logout();
-        navegacao.navegarPara(Navegacao.Tela.LOGIN);
+    private void salvarOrientacao() {
+        TCC tccSelecionado = comboTccsOrientandos.getValue();
+        LocalDate data = datePickerOrientacao.getValue();
+        String descricao = textAreaDescricao.getText();
+
+        if (tccSelecionado == null || data == null || descricao.isBlank()) {
+            lblStatusUC3.setText("Erro: Preencha TCC, Data e Descrição.");
+            return;
+        }
+
+        try {
+            tccServico.registrarOrientacao(profLogado, tccSelecionado, data, descricao); // RF009
+            lblStatusUC3.setText("Orientação salva com sucesso! (RF010)");
+
+            // Limpa os campos
+            datePickerOrientacao.setValue(null);
+            textAreaDescricao.clear();
+
+            // Recarrega a lista (caso o status mude para "pronto para banca")
+            carregarDadosTodasAbas();
+
+        } catch (Exception e) {
+            lblStatusUC3.setText("Erro ao salvar: " + e.getMessage());
+        }
     }
 
-    private void exibirAlerta(String titulo, String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
+    // --- Lógica da Aba UC4: Definir Banca ---
+    private void carregarAbaDefinirBanca() {
+        try {
+            // RF011
+            List<Professor> professores = tccServico.listarProfessores();
+            listaProfessoresDisponiveis.setItems(FXCollections.observableArrayList(professores));
+
+            List<TCC> tccs = tccServico.listarTccsParaDefinirBanca(profLogado);
+            comboTccsParaBanca.setItems(FXCollections.observableArrayList(tccs));
+            lblStatusUC4.setText(tccs.size() + " TCCs prontos para banca.");
+
+        } catch (Exception e) {
+            lblStatusUC4.setText("Erro ao carregar dados: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onDefinirBancaClick() {
+        TCC tcc = comboTccsParaBanca.getValue();
+        List<Professor> membros = listaProfessoresDisponiveis.getSelectionModel().getSelectedItems();
+        LocalDate data = datePickerBanca.getValue();
+
+        if (tcc == null || membros.isEmpty() || data == null) {
+            lblStatusUC4.setText("Erro: Selecione TCC, Data e Membros.");
+            return;
+        }
+
+        try {
+            tccServico.definirBanca(tcc, membros, data); // RF012, RF013
+            lblStatusUC4.setText("Banca definida com sucesso! (RF015)");
+            carregarDadosTodasAbas(); // Atualiza todas as listas
+        } catch (Exception e) {
+            lblStatusUC4.setText("Erro: " + e.getMessage());
+        }
+    }
+
+    // --- Lógica da Aba UC5: Finalizar TCC ---
+    private void carregarAbaFinalizarTCC() {
+        try {
+            List<TCC> tccs = tccServico.listarTccsParaFinalizar(profLogado);
+            comboTccsParaFinalizar.setItems(FXCollections.observableArrayList(tccs));
+            lblStatusUC5.setText(tccs.size() + " TCCs aguardando finalização.");
+        } catch (Exception e) {
+            lblStatusUC5.setText("Erro ao carregar dados: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onFinalizarTccClick() {
+        TCC tcc = comboTccsParaFinalizar.getValue();
+        String notaStr = txtNotaFinal.getText();
+        String anotacoes = txtAnotacoesFinais.getText();
+
+        double nota;
+        try {
+            nota = Double.parseDouble(notaStr);
+        } catch (NumberFormatException e) {
+            lblStatusUC5.setText("Erro: Nota deve ser um número.");
+            return;
+        }
+
+        if (tcc == null) {
+            lblStatusUC5.setText("Erro: Selecione um TCC.");
+            return;
+        }
+
+        try {
+            tccServico.finalizarTCC(tcc, nota, anotacoes); // RF017, RF019
+            lblStatusUC5.setText("TCC finalizado com sucesso!");
+
+            // Simula RF020 (Gerar Ata)
+            gerarTextoAta(tcc);
+
+            carregarDadosTodasAbas(); // Atualiza todas as listas
+
+        } catch (Exception e) {
+            lblStatusUC5.setText("Erro: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Simula a geração da ATA (RF020)
+     */
+    private void gerarTextoAta(TCC tcc) {
+        Avaliacao avaliacao = tcc.getAvaliacaoFinal();
+        String statusFormatado = String.format(
+                "** %s **",
+                avaliacao.getStatus()
+        );
+
+        String ata = String.format(
+                "ATA DE DEFESA DE TCC\n" +
+                        "==================================\n" +
+                        "Aluno: %s\n" +
+                        "Título: %s\n" +
+                        "Data da Defesa: %s\n\n" +
+                        "NOTA FINAL: %.2f\n" +
+                        "STATUS: %s\n\n" +
+                        "Anotações:\n%s\n" +
+                        "==================================\n",
+                tcc.getAutor().getNome(),
+                tcc.getTitulo(),
+                tcc.getBanca().getDataApresentacaoFormatada(),
+                avaliacao.getNotaFinal(),
+                statusFormatado,
+                avaliacao.getAnotacoes()
+        );
+
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("ATA Gerada (RF020)");
+        alert.setHeaderText("Ata de Defesa do TCC");
+        // Usar um TextArea para preservar a formatação
+        TextArea textArea = new TextArea(ata);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+        alert.getDialogPane().setContent(textArea);
         alert.showAndWait();
+    }
+
+    // --- Geral ---
+    /**
+     * Chamado pelo clique do botão "Logout".
+     * MUDANÇA: de 'private' para 'public'
+     */
+    @FXML
+    public void fazerLogout() {
+        sessaoUsuario.logout();
+        navegacao.navegarPara(Navegacao.Tela.LOGIN);
     }
 }

@@ -6,31 +6,57 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
 <!--
-  CORREÇÃO: O atributo 'fx:controller' foi REMOVIDO da tag VBox abaixo.
-  O controlador agora é injetado pelo Navegacao.java.
+  A VBox raiz (exterior) tem alignment="CENTER".
+  Isto centra verticalmente e horizontalmente todo o bloco de conteúdo.
 -->
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="400.0" spacing="15.0" style="-fx-background-color: #f4f7f6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
-    <children>
-        <Label text="Login - Sistema de TCC">
-            <font>
-                <Font name="System Bold" size="24.0" />
-            </font>
-        </Label>
-        <Label text="CPF (Professor) ou Matrícula (Aluno)" />
-        <TextField fx:id="txtCpf" alignment="CENTER" maxWidth="250.0" promptText="CPF ou Matrícula" />
-        <Label text="Senha" />
-        <PasswordField fx:id="txtSenha" alignment="CENTER" maxWidth="250.0" promptText="Senha" />
-        <Button fx:id="btnLogin" defaultButton="true" mnemonicParsing="false" onAction="#btnLoginClick" style="-fx-background-color: #00A0F0; -fx-text-fill: white;" text="Entrar">
-            <font>
-                <Font name="System Bold" size="14.0" />
-            </font>
-        </Button>
-        <Label fx:id="lblStatusLogin" text="Status..." textFill="RED" />
-    </children>
+<VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #f4f4f4; -fx-padding: 40;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
     </padding>
+
+    <Label text="Sistema de TCC">
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
+    </Label>
+    <Label text="Bem-vindo(a)! Faça seu login." />
+
+    <!--
+      Usamos um GridPane para alinhar o formulário.
+      - Tem uma largura máxima de 350px.
+      - O GridPane em si será centrado pela VBox exterior.
+    -->
+    <GridPane alignment="CENTER" hgap="10.0" vgap="10.0" maxWidth="350.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+            <ColumnConstraints hgrow="ALWAYS" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+        </rowConstraints>
+        <children>
+            <!-- Linha 0 -->
+            <Label text="CPF / Matrícula:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+            <TextField fx:id="txtLogin" promptText="Digite seu CPF ou Matrícula" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+            <!-- Linha 1 -->
+            <Label text="Senha:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <PasswordField fx:id="txtSenha" promptText="Digite sua senha" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+            <!-- Linha 2 -->
+            <Button fx:id="btnLogin" onAction="#btnLoginClick" text="Login" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold;" maxWidth="1.7976931348623157E308" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2" />
+
+        </children>
+    </GridPane>
+
+    <Label fx:id="lblStatus" style="-fx-text-fill: #d32f2f;" text="Status" />
 </VBox>

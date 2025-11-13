@@ -1,16 +1,15 @@
 package sistema_tcc.dominio;
 
 /**
- * Entidade Aluno (Especialização de Usuário).
- * O CPF será usado como matrícula para simplificar.
+ * Representa o ator Aluno.
  */
 public class Aluno extends Usuario {
-    public Aluno(String nome, String cpf, String senha) {
-        super(nome, cpf, senha, Papel.ALUNO);
+
+    public Aluno(String matricula, String nome, String senha) {
+        super(matricula, nome, senha, Papel.ALUNO);
     }
 
-    // Matrícula é o CPF neste modelo
     public String getMatricula() {
-        return super.getCpf();
+        return getId();
     }
 }

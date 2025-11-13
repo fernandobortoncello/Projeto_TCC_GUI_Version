@@ -1,7 +1,6 @@
 package sistema_tcc.ui.controlador;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -10,23 +9,25 @@ import sistema_tcc.dominio.Professor;
 import sistema_tcc.dominio.Usuario;
 import sistema_tcc.servicos.AuthException;
 import sistema_tcc.servicos.AuthServico;
-import sistema_tcc.servicos.SessaoUsuario;
 import sistema_tcc.ui.Navegacao;
 
 /**
  * Controlador para a tela LoginVista.fxml.
- * Este controlador TEM o método btnLoginClick().
  */
 public class LoginControlador {
 
+    // --- Injeção de Dependência (via Construtor) ---
     private final AuthServico authServico;
     private final Navegacao navegacao;
 
-    @FXML private TextField txtCpf;
+    // --- Componentes da UI (Injetados pelo @FXML) ---
+    @FXML private TextField txtLogin;
     @FXML private PasswordField txtSenha;
-    @FXML private Label lblStatusLogin;
+    @FXML private Label lblStatus;
 
-    // Construtor usado pela AppJavaFX (Injeção de Dependência)
+    /**
+     * Construtor usado pelo AppJavaFX para injetar dependências.
+     */
     public LoginControlador(AuthServico authServico, Navegacao navegacao) {
         this.authServico = authServico;
         this.navegacao = navegacao;
@@ -34,57 +35,39 @@ public class LoginControlador {
 
     @FXML
     public void initialize() {
-        lblStatusLogin.setText("Por favor, insira suas credenciais.");
-        lblStatusLogin.setStyle("-fx-text-fill: black;");
+        lblStatus.setText("Por favor, faça o login.");
     }
 
     /**
-     * Chamado quando o botão "Entrar" é clicado.
-     * Este é o método que o FXML deve chamar.
+     * Chamado pelo clique do botão "Login" no FXML.
      */
     @FXML
     private void btnLoginClick() {
-        String cpf = txtCpf.getText();
+        String login = txtLogin.getText();
         String senha = txtSenha.getText();
 
-        if (cpf.isBlank() || senha.isBlank()) {
-            lblStatusLogin.setText("CPF (Matrícula) e Senha são obrigatórios.");
-            lblStatusLogin.setStyle("-fx-text-fill: red;");
+        if (login.isBlank() || senha.isBlank()) {
+            lblStatus.setText("Erro: Preencha todos os campos.");
             return;
         }
 
         try {
-            // 1. Chamar o Serviço de Autenticação
-            Usuario usuarioLogado = authServico.login(cpf, senha);
+            // 1. Chama o Serviço (lógica de aplicação)
+            Usuario usuarioLogado = authServico.login(login, senha);
+            lblStatus.setText("Login bem-sucedido!");
 
-            // 2. Definir o usuário na Sessão
-            SessaoUsuario.getInstancia().setUsuarioLogado(usuarioLogado);
-
-            // 3. Navegar para a tela correta baseado no Papel (RNF-SEG02)
+            // 2. Decide para qual tela navegar
             if (usuarioLogado instanceof Aluno) {
+                System.out.println("LOG: Login Aluno OK: " + usuarioLogado.getNome());
                 navegacao.navegarPara(Navegacao.Tela.ALUNO_DASHBOARD);
             } else if (usuarioLogado instanceof Professor) {
+                System.out.println("LOG: Login Professor OK: " + usuarioLogado.getNome());
                 navegacao.navegarPara(Navegacao.Tela.PROFESSOR_DASHBOARD);
             }
 
         } catch (AuthException e) {
-            // Exibe erros de login (ex: "Senha incorreta")
-            lblStatusLogin.setText(e.getMessage());
-            lblStatusLogin.setStyle("-fx-text-fill: red;");
-            showAlert(Alert.AlertType.ERROR, "Erro de Login", e.getMessage());
-        } catch (Exception e) {
-            // Exibe erros inesperados
-            lblStatusLogin.setText("Erro inesperado: " + e.getMessage());
-            lblStatusLogin.setStyle("-fx-text-fill: red;");
-            e.printStackTrace();
+            // 3. Exibe o erro retornado pelo serviço
+            lblStatus.setText("Erro: " + e.getMessage());
         }
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

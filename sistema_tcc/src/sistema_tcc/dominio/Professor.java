@@ -1,13 +1,15 @@
 package sistema_tcc.dominio;
 
 /**
- * Entidade Professor (Especialização de Usuário).
+ * Representa o ator Professor.
  */
 public class Professor extends Usuario {
-    // private List<AreaConhecimento> areasInteresse; // Exemplo de expansão futura
 
-    public Professor(String nome, String cpf, String senha) {
-        // Pode ser PROFESSOR ou COORDENADOR (RF012)
-        super(nome, cpf, senha, Papel.PROFESSOR);
+    public Professor(String cpf, String nome, String senha, Papel papel) {
+        super(cpf, nome, senha, papel);
+    }
+
+    public String getCpf() {
+        return getId();
     }
 }

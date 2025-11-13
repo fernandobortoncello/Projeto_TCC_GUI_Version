@@ -1,12 +1,9 @@
 package sistema_tcc.servicos;
 
-import sistema_tcc.dominio.Aluno;
-import sistema_tcc.dominio.AreaConhecimento;
-import sistema_tcc.dominio.Professor;
-import sistema_tcc.dominio.TCC;
-import sistema_tcc.dominio.TccStatus;
+import sistema_tcc.dominio.*;
+import sistema_tcc.repositorio.ProfessorRepositorio;
 import sistema_tcc.repositorio.TccRepositorio;
-
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -16,44 +13,80 @@ import java.util.List;
 public class TccServico {
 
     private final TccRepositorio tccRepositorio;
+    private final ProfessorRepositorio professorRepositorio;
     // private final EmailServico emailServico; // Para RF006, RF014, etc.
 
-    public TccServico(TccRepositorio tccRepositorio) {
+    public TccServico(TccRepositorio tccRepositorio, ProfessorRepositorio professorRepositorio) {
         this.tccRepositorio = tccRepositorio;
-        // this.emailServico = new EmailServico();
+        this.professorRepositorio = professorRepositorio;
     }
 
-    /**
-     * Implementa UC1: Cadastro de Tema (RF002)
-     * A assinatura espera uma List<AreaConhecimento>
-     */
-    public TCC cadastrarTema(Aluno autor, String titulo, String desc, List<AreaConhecimento> areas) {
-        // A lógica de negócio (criação) está na própria entidade TCC.
-        TCC novoTCC = new TCC(autor, titulo, desc, areas);
+    // --- Métodos para UC1 (Aluno) ---
 
-        // O repositório salva a nova entidade
+    public TCC cadastrarTema(Aluno autor, String titulo, String desc, List<AreaConhecimento> areas) {
+        TCC novoTCC = new TCC(autor, titulo, desc, areas);
         return tccRepositorio.salvar(novoTCC);
     }
 
-    /**
-     * Implementa UC2: Escolha Orientador (RF005)
-     */
+    // --- Métodos para UC2 (Professor) ---
+
+    public List<TCC> listarTemasPropostos() {
+        return tccRepositorio.buscarPorStatus(TccStatus.PROPOSTA);
+    }
+
     public void escolherOrientador(Professor professor, TCC tcc) {
-        // O serviço ORQUESTRA. A entidade TCC executa a lógica de negócio.
         tcc.atribuirOrientador(professor);
-
-        // Salva o estado atualizado
         tccRepositorio.salvar(tcc);
-
-        // Dispara eventos (simulado)
         // emailServico.enviarEmail(tcc.getAutor(), "Orientador Definido", ...); // RF006
         System.out.println("RELATÓRIO: Prof. " + professor.getNome() + " agora orienta " + tcc.getTitulo()); // RF007
     }
 
-    /**
-     * Implementa RF004: Professor consultar temas.
-     */
-    public List<TCC> listarTemasPropostos() {
-        return tccRepositorio.buscarPorStatus(TccStatus.PROPOSTA);
+    // --- Métodos para UC3 (Professor) ---
+
+    public List<TCC> listarTCCsOrientados(Professor professor) {
+        return tccRepositorio.buscarPorOrientador(professor);
+    }
+
+    public void registrarOrientacao(Professor professor, TCC tcc, LocalDate data, String descricao) {
+        Orientacao orientacao = new Orientacao(data, descricao);
+        tcc.adicionarOrientacao(professor, orientacao);
+        tccRepositorio.salvar(tcc);
+    }
+
+    // --- Métodos para UC4 (Professor) ---
+
+    public List<Professor> listarProfessores() {
+        return professorRepositorio.listarTodos();
+    }
+
+    public List<TCC> listarTccsParaDefinirBanca(Professor professor) {
+        return tccRepositorio.buscarTccsParaDefinirBanca(professor);
+    }
+
+    public void definirBanca(TCC tcc, List<Professor> membros, LocalDate data) {
+        Banca banca = new Banca(membros, data);
+        tcc.definirBanca(banca);
+        tccRepositorio.salvar(tcc);
+        // emailServico.enviarNotificacao(tcc.getAutor(), "Banca Definida", ...); // RF014
+    }
+
+    // --- Métodos para UC5 (Professor) ---
+
+    public List<TCC> listarTccsParaFinalizar(Professor professor) {
+        return tccRepositorio.buscarTccsParaFinalizar(professor);
+    }
+
+    public void finalizarTCC(TCC tcc, double nota, String anotacoes) {
+        Avaliacao avaliacao = new Avaliacao(nota, anotacoes);
+        tcc.finalizarTCC(avaliacao);
+        tccRepositorio.salvar(tcc);
+        // emailServico.enviarNotificacao(tcc.getAutor(), "TCC Finalizado", ...); // RF019
+        // gerarAtaPDF(tcc); // RF020
+    }
+
+    // --- Métodos para (Aluno) ---
+
+    public TCC buscarTccPorAluno(Aluno aluno) {
+        return tccRepositorio.buscarPorAluno(aluno);
     }
 }

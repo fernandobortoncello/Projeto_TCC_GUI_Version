@@ -1,17 +1,20 @@
 package sistema_tcc.repositorio;
 
 import sistema_tcc.dominio.Professor;
+import java.util.List;
 
 /**
- * Interface (Contrato) para persistência de Professores.
- * O AuthServico chama os métodos definidos AQUI.
+ * Interface (Contrato) para o repositório de Professores.
  */
 public interface ProfessorRepositorio {
-    void adicionar(Professor p);
-
     /**
      * Busca um professor pelo seu ID (CPF).
-     * Retorna null se não encontrar (tratado pelo AuthServico).
+     * @return O Professor, ou null se não for encontrado.
      */
     Professor buscarPorId(String id);
+
+    /**
+     * Retorna todos os professores (para preencher listas da banca, UC4).
+     */
+    List<Professor> listarTodos();
 }

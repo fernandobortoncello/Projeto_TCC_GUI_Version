@@ -6,35 +6,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implementação FAKE (em memória) do repositório de Alunos.
+ * Simulação de um banco de dados de Alunos em memória.
  */
 public class MockAlunoRepositorio implements AlunoRepositorio {
 
-    // Simula a tabela "alunos"
-    private final Map<String, Aluno> dbAlunos = new HashMap<>();
+    private final Map<String, Aluno> db = new HashMap<>();
 
-    /**
-     * ADICIONADO: Método para popular o mock com dados de exemplo.
-     */
     public void popularDadosDemo() {
-        // Dados baseados no seu arquivo SistemaTCC.java original
-        Aluno aluno1 = new Aluno("Aline Espindola", "2025001", "senha123");
-        Aluno aluno2 = new Aluno("Fernando Bortoncello", "2025002", "senha123");
+        Aluno a1 = new Aluno("2025001", "Aline de Abreu Espindola", "senha123");
+        Aluno a2 = new Aluno("2025002", "Fernando Bortoncello", "senha123");
 
-        this.adicionar(aluno1);
-        this.adicionar(aluno2);
-        System.out.println("LOG DB: " + dbAlunos.size() + " alunos carregados.");
-    }
-
-    @Override
-    public void adicionar(Aluno a) {
-        // Usa a matrícula (CPF) como chave
-        dbAlunos.put(a.getMatricula(), a);
+        db.put(a1.getMatricula(), a1);
+        db.put(a2.getMatricula(), a2);
+        System.out.println("LOG DB: " + db.size() + " alunos carregados.");
     }
 
     @Override
     public Aluno buscarPorMatricula(String matricula) {
-        // Retorna o aluno ou null (tratado pelo AuthServico)
-        return dbAlunos.get(matricula);
+        return db.get(matricula);
     }
 }

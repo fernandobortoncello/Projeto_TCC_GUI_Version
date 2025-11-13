@@ -3,58 +3,37 @@ package sistema_tcc.servicos;
 import sistema_tcc.dominio.Usuario;
 
 /**
- * Singleton para gerenciar o estado da sessão (quem está logado).
- * CORRIGIDO: Adicionados os métodos setUsuarioLogado() e logout().
+ * Gerencia o estado de login do usuário (Singleton).
+ * Esta classe mantém qual usuário está logado na aplicação.
  */
 public class SessaoUsuario {
 
-    private static SessaoUsuario instancia;
     private Usuario usuarioLogado;
 
-    // Construtor privado para Singleton
-    private SessaoUsuario() {}
-
     /**
-     * Ponto de acesso global para a sessão.
-     */
-    public static SessaoUsuario getInstancia() {
-        if (instancia == null) {
-            instancia = new SessaoUsuario();
-        }
-        return instancia;
-    }
-
-    /**
-     * CORREÇÃO: Método que faltava, chamado pelo LoginControlador.
+     * Define o usuário logado (chamado pelo AuthServico).
      */
     public void setUsuarioLogado(Usuario usuario) {
         this.usuarioLogado = usuario;
     }
 
     /**
-     * CORREÇÃO: Método que faltava, chamado pelos botões de logout.
+     * Remove o usuário da sessão.
      */
     public void logout() {
         this.usuarioLogado = null;
     }
 
     /**
-     * Método básico para obter o usuário.
-     */
-    public Usuario getUsuarioLogado() {
-        return this.usuarioLogado;
-    }
-
-    /**
-     * Método seguro para obter o usuário e já verificar seu tipo (Papel).
-     * Usado pelos controladores de Aluno e Professor.
+     * Verifica se há um usuário logado e se ele é do tipo esperado.
+     * Este método é genérico e mais seguro.
      */
     public <T extends Usuario> T getUsuarioLogado(Class<T> tipo) {
         if (usuarioLogado == null) {
             throw new IllegalStateException("Nenhum usuário está logado.");
         }
         if (!tipo.isInstance(usuarioLogado)) {
-            throw new IllegalStateException("O usuário logado não é do tipo esperado (" + tipo.getSimpleName() + ").");
+            throw new IllegalStateException("O usuário logado não é do tipo " + tipo.getSimpleName());
         }
         return tipo.cast(usuarioLogado);
     }

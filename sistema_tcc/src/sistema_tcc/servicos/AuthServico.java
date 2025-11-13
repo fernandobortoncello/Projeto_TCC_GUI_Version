@@ -1,26 +1,24 @@
-package sistema_tcc.servicos; // <-- CORRIGIDO: Removido o "java."
+package sistema_tcc.servicos;
 
 import sistema_tcc.dominio.Aluno;
-import sistema_tcc.dominio.Papel; // Importação necessária
 import sistema_tcc.dominio.Professor;
 import sistema_tcc.dominio.Usuario;
 import sistema_tcc.repositorio.AlunoRepositorio;
 import sistema_tcc.repositorio.ProfessorRepositorio;
-// java.util.Optional não é mais necessário aqui
 
 /**
  * Serviço de Autenticação (Caso de Uso: Login).
- * Desacoplado da UI. Lança exceções em caso de falha.
- * ESTA VERSÃO CORRIGE AS CHAMADAS DE REPOSITÓRIO.
  */
 public class AuthServico {
 
     private final AlunoRepositorio alunoRepositorio;
     private final ProfessorRepositorio professorRepositorio;
+    private final SessaoUsuario sessaoUsuario;
 
-    public AuthServico(AlunoRepositorio ar, ProfessorRepositorio pr) {
+    public AuthServico(AlunoRepositorio ar, ProfessorRepositorio pr, SessaoUsuario sessao) {
         this.alunoRepositorio = ar;
         this.professorRepositorio = pr;
+        this.sessaoUsuario = sessao;
     }
 
     /**
@@ -28,35 +26,29 @@ public class AuthServico {
      * @return O Usuário logado (Aluno ou Professor).
      * @throws AuthException Se o login falhar.
      */
-    public Usuario login(String cpfOuMatricula, String senha) throws AuthException {
-
-        // Tenta como Aluno
-        // CORRIGIDO: Chamando o método que existe em AlunoRepositorio
-        Aluno aluno = alunoRepositorio.buscarPorMatricula(cpfOuMatricula);
-
-        if (aluno != null) { // Se encontrou um aluno
+    public Usuario login(String idUsuario, String senha) throws AuthException {
+        // Tenta como Aluno (usando matrícula)
+        Aluno aluno = alunoRepositorio.buscarPorMatricula(idUsuario);
+        if (aluno != null) {
             if (aluno.verificarSenha(senha)) {
-                System.out.println("LOG: Login Aluno OK: " + aluno.getNome());
+                sessaoUsuario.setUsuarioLogado(aluno); // Define o usuário na sessão
                 return aluno;
             } else {
                 throw new AuthException("Senha incorreta."); // RNF002
             }
         }
 
-        // Tenta como Professor
-        // CORRIGIDO: Chamando o método que existe em ProfessorRepositorio
-        Professor prof = professorRepositorio.buscarPorId(cpfOuMatricula);
-
-        if (prof != null) { // Se encontrou um professor
+        // Tenta como Professor (usando ID/CPF)
+        Professor prof = professorRepositorio.buscarPorId(idUsuario);
+        if (prof != null) {
             if (prof.verificarSenha(senha)) {
-                System.out.println("LOG: Login Professor OK: " + prof.getNome());
+                sessaoUsuario.setUsuarioLogado(prof); // Define o usuário na sessão
                 return prof;
             } else {
                 throw new AuthException("Senha incorreta."); // RNF002
             }
         }
 
-        // Se não encontrou nem aluno nem professor
         throw new AuthException("Usuário (CPF/Matrícula) não encontrado.");
     }
 }
