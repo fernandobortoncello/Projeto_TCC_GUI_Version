@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<!--
+  fx:controller é REMOVIDO daqui
+  O controlador é injetado pelo Navegacao.java
+-->
+<VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #f4f4f4; -fx-padding: 40;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+
+    <padding>
+        <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+    </padding>
+
+    <Label text="Sistema de TCC">
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
+    </Label>
+    <Label text="Bem-vindo(a)! Faça seu login." />
+
+    <!--
+      Usamos um GridPane para alinhar o formulário.
+      - Tem uma largura máxima de 350px.
+      - O GridPane em si será centrado pela VBox exterior.
+    -->
+    <GridPane alignment="CENTER" hgap="10.0" vgap="10.0" maxWidth="350.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+            <ColumnConstraints hgrow="ALWAYS" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+        </rowConstraints>
+        <children>
+            <!-- Linha 0 -->
+            <Label text="CPF / Matrícula:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+            <TextField fx:id="txtLogin" promptText="Digite seu CPF ou Matrícula" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+            <!-- Linha 1 -->
+            <Label text="Senha:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <PasswordField fx:id="txtSenha" promptText="Digite sua senha" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+            <!-- Linha 2 -->
+            <Button fx:id="btnLogin" onAction="#btnLoginClick" text="Login" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold;" maxWidth="1.7976931348623157E308" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2" />
+
+        </children>
+    </GridPane>
+
+    <Label fx:id="lblStatus" style="-fx-text-fill: #d32f2f;" text="Status" />
+</VBox>

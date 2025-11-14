@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<!-- fx:controller removido -->
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #333; -fx-padding: 10;">
+            <children>
+                <Label text="Portal do Professor" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
+                    <children>
+                        <Label fx:id="lblNomeProfessor" text="Nome do Professor" textFill="WHITE" />
+                        <Button onAction="#fazerLogout" text="Logout" style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-margin-left: 20;" />
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+        <TabPane fx:id="tabPaneProfessor" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <tabs>
+                <Tab text="Escolher Tema (UC2)">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <VBox spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                                    <children>
+                                        <Label text="Temas Propostos Aguardando Orientador (RF004)">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <ListView fx:id="listaTemasPropostos" prefHeight="200.0" />
+                                        <Button onAction="#escolherOrientador" text="Assumir Orientação (RF005)" style="-fx-background-color: #007bff; -fx-text-fill: white;" />
+                                        <Label fx:id="lblStatusUC2" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="Registrar Orientação (UC3)">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <VBox spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                                    <children>
+                                        <Label text="Registrar Nova Orientação (RF009)">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Selecione o TCC:" />
+                                        <ComboBox fx:id="comboTccsOrientandos" maxWidth="1.7976931348623157E308" promptText="Meus TCCs em andamento..." />
+                                        <Label text="Data da Orientação:" />
+                                        <DatePicker fx:id="datePickerOrientacao" />
+                                        <Label text="Descrição / Assuntos Abordados:" />
+                                        <TextArea fx:id="textAreaDescricao" prefHeight="100.0" wrapText="true" promptText="Ex: Revisão da arquitetura, definição dos próximos passos..." />
+                                        <Button fx:id="btnSalvarOrientacao" onAction="#salvarOrientacao" text="Salvar Registro (RF010)" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+                                        <Label fx:id="lblStatusUC3" textFill="#0d630d" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="Definir Banca (UC4)">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <VBox spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                                    <children>
+                                        <Label text="Definir Banca Avaliadora (RF012)">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Selecione o TCC (deve ter orientações):" />
+                                        <ComboBox fx:id="comboTccsParaBanca" maxWidth="1.7976931348623157E308" promptText="TCCs prontos para banca..." />
+                                        <Label text="Data da Apresentação:" />
+                                        <DatePicker fx:id="datePickerBanca" />
+                                        <Label text="Selecionar Membros da Banca (RF011):" />
+                                        <ListView fx:id="listaProfessoresDisponiveis" prefHeight="120.0" />
+                                        <Button onAction="#onDefinirBancaClick" text="Confirmar Banca (RF013)" style="-fx-background-color: #007bff; -fx-text-fill: white;" />
+                                        <Label fx:id="lblStatusUC4" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="Finalizar TCC (UC5)">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <VBox spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                                    <children>
+                                        <Label text="Lançar Avaliação Final (RF017)">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Selecione o TCC (aguardando banca):" />
+                                        <ComboBox fx:id="comboTccsParaFinalizar" maxWidth="1.7976931348623157E308" promptText="TCCs prontos para finalizar..." />
+                                        <Label text="Nota Final (0.0 a 10.0):" />
+                                        <TextField fx:id="txtNotaFinal" promptText="Ex: 8.5" maxWidth="100.0" />
+                                        <Label text="Anotações / Correções (RF018):" />
+                                        <TextArea fx:id="txtAnotacoesFinais" prefHeight="100.0" wrapText="true" promptText="Descreva as correções necessárias ou comentários..." />
+                                        <Button onAction="#onFinalizarTccClick" text="Lançar Nota e Finalizar TCC (RF019)" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+                                        <Label fx:id="lblStatusUC5" textFill="#0d630d" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</VBox>
