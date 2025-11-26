@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema TCC</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f0f2f5; }
+        .container { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .hidden { display: none; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+
+        /* Tabs - CORREÇÃO DE VISIBILIDADE */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .tab-btn {
+            padding: 10px 20px;
+            background-color: #f8f9fa; /* Fundo cinza bem claro para diferenciar */
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333; /* Força cor escura para o texto */
+            opacity: 0.7;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab-btn:hover {
+            background-color: #e2e6ea;
+            opacity: 1;
+        }
+        .tab-btn.active {
+            background-color: white; /* Fundo branco ativo */
+            border: 1px solid #ddd;
+            border-bottom: 2px solid white; /* Conecta visualmente com o conteúdo */
+            margin-bottom: -2px; /* Sobrepõe a borda da container de tabs */
+            opacity: 1;
+            font-weight: bold;
+            color: #3498db; /* Cor de destaque */
+            border-top: 3px solid #3498db;
+        }
+
+        /* Cards e Forms */
+        .card { border: 1px solid #e1e4e8; padding: 15px; margin-bottom: 10px; border-radius: 6px; }
+        .status-tag { background: #3498db; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0 15px; box-sizing: border-box; }
+        button { padding: 10px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button.secondary { background: #95a5a6; }
+        button:hover { opacity: 0.9; }
+
+        /* Dados do Aluno */
+        .info-box { background: #f9f9f9; padding: 15px; border-radius: 4px; margin-top: 10px; }
+        .grade-box { font-size: 1.2em; font-weight: bold; color: #27ae60; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="login-view" class="container">
+    <h2>Login</h2>
+    <input type="text" id="loginId" placeholder="ID (ex: 2025001 ou 111222)">
+    <input type="password" id="loginPass" placeholder="Senha (123)">
+    <button onclick="login()">Entrar</button>
+</div>
+
+<div id="main-view" class="container hidden">
+    <div class="header">
+        <h2 id="welcome-msg">Bem-vindo</h2>
+        <button class="secondary" onclick="logout()">Sair</button>
+    </div>
+
+    <!-- Área do Aluno -->
+    <div id="aluno-panel" class="hidden">
+        <div id="aluno-no-tcc" class="hidden">
+            <h3>Submeter Proposta</h3>
+            <input type="text" id="tccTitulo" placeholder="Título">
+            <textarea id="tccDesc" placeholder="Descrição"></textarea>
+            <button onclick="proporTcc()">Enviar Proposta</button>
+        </div>
+
+        <div id="aluno-tcc-info" class="hidden">
+            <div class="card">
+                <h3 id="viewTitulo"></h3>
+                <span id="viewStatus" class="status-tag"></span>
+                <p><strong>Orientador:</strong> <span id="viewOrientador"></span></p>
+                <p id="viewDesc"></p>
+
+                <!-- Aba de Orientações do Aluno -->
+                <div class="info-box">
+                    <h4>Histórico de Orientações</h4>
+                    <ul id="viewOrientacoes"></ul>
+                </div>
+
+                <!-- Aba de Banca/Avaliação do Aluno -->
+                <div class="info-box">
+                    <h4>Banca e Avaliação Final</h4>
+                    <p><strong>Data da Banca:</strong> <span id="viewDataBanca">-</span></p>
+                    <p><strong>Membros:</strong> <span id="viewMembros">-</span></p>
+                    <hr>
+                    <div id="viewResultadoFinal" class="hidden">
+                        <div class="grade-box">Nota Final: <span id="viewNota"></span></div>
+                        <p><strong>Parecer:</strong> <span id="viewParecer"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área do Professor -->
+    <div id="prof-panel" class="hidden">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('tab-propostas')">Novas Propostas</button>
+            <button class="tab-btn" onclick="showTab('tab-orientacao')">Orientações</button>
+            <button class="tab-btn" onclick="showTab('tab-banca')">Definir Banca</button>
+            <button class="tab-btn" onclick="showTab('tab-finalizar')">Finalizar/Avaliar</button>
+        </div>
+
+        <div id="tab-propostas">
+            <h3>Propostas Aguardando Orientador</h3>
+            <div id="list-propostas"></div>
+        </div>
+
+        <div id="tab-orientacao" class="hidden">
+            <h3>Registrar Orientação</h3>
+            <label>Selecione o TCC:</label>
+            <select id="sel-orientacao-tcc"></select>
+            <textarea id="txt-orientacao" placeholder="Descrição da orientação..."></textarea>
+            <button onclick="registrarOrientacao()">Salvar Orientação</button>
+        </div>
+
+        <div id="tab-banca" class="hidden">
+            <h3>Definir Banca Examinadora</h3>
+            <label>Selecione o TCC (Em Andamento):</label>
+            <select id="sel-banca-tcc"></select>
+            <label>Data da Banca:</label>
+            <input type="date" id="date-banca">
+            <label>Membros da Banca (Segure Ctrl para múltiplos):</label>
+            <select id="sel-banca-membros" multiple style="height: 100px;"></select>
+            <button onclick="definirBanca()">Salvar Banca</button>
+        </div>
+
+        <div id="tab-finalizar" class="hidden">
+            <h3>Avaliação Final e ATA</h3>
+            <label>Selecione o TCC (Aguardando Banca):</label>
+            <select id="sel-final-tcc"></select>
+            <input type="number" id="nota-final" placeholder="Nota (0-10)">
+            <textarea id="parecer-final" placeholder="Parecer final e considerações..."></textarea>
+            <button onclick="finalizarTcc()">Finalizar e Gerar ATA</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = 'http://localhost:8080/api';
+    let user = null;
+
+    async function login() {
+        const id = document.getElementById('loginId').value;
+        const pass = document.getElementById('loginPass').value;
+        try {
+            const res = await fetch(API + '/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id, senha: pass})
+            });
+            if(!res.ok) throw new Error();
+            user = await res.json();
+            renderApp();
+        } catch(e) { alert('Erro no login'); }
+    }
+
+    function logout() {
+        user = null;
+        location.reload();
+    }
+
+    function renderApp() {
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('main-view').classList.remove('hidden');
+        document.getElementById('welcome-msg').innerText = `Olá, ${user.nome}`;
+
+        if(user.papel === 'ALUNO') {
+            document.getElementById('aluno-panel').classList.remove('hidden');
+            loadAlunoData();
+        } else {
+            document.getElementById('prof-panel').classList.remove('hidden');
+            loadProfData();
+        }
+    }
+
+    // --- ALUNO ---
+    async function loadAlunoData() {
+        const res = await fetch(API + '/tcc/meu-tcc', { headers: {'user-id': user.id}});
+        const text = await res.text();
+        if(!text) {
+            document.getElementById('aluno-no-tcc').classList.remove('hidden');
+        } else {
+            const tcc = JSON.parse(text);
+            document.getElementById('aluno-tcc-info').classList.remove('hidden');
+            document.getElementById('viewTitulo').innerText = tcc.titulo;
+            document.getElementById('viewStatus').innerText = tcc.status;
+            document.getElementById('viewDesc').innerText = tcc.descricao;
+            document.getElementById('viewOrientador').innerText = tcc.orientador;
+
+            // Lista Orientações
+            const list = document.getElementById('viewOrientacoes');
+            list.innerHTML = tcc.orientacoes.map(o => `<li>${o}</li>`).join('');
+
+            // Banca e Notas
+            if(tcc.dataBanca) document.getElementById('viewDataBanca').innerText = tcc.dataBanca;
+            if(tcc.bancaMembros) document.getElementById('viewMembros').innerText = tcc.bancaMembros.join(', ');
+
+            if(tcc.nota) {
+                document.getElementById('viewResultadoFinal').classList.remove('hidden');
+                document.getElementById('viewNota').innerText = tcc.nota;
+                document.getElementById('viewParecer').innerText = tcc.parecer;
+            }
+        }
+    }
+
+    async function proporTcc() {
+        const titulo = document.getElementById('tccTitulo').value;
+        const descricao = document.getElementById('tccDesc').value;
+        await fetch(API + '/tcc/propor', {
+            method: 'POST',
+            headers: {'user-id': user.id, 'Content-Type': 'application/json'},
+            body: JSON.stringify({titulo, descricao})
+        });
+
+        alert('Proposta enviada com sucesso!');
+        document.getElementById('aluno-no-tcc').classList.add('hidden');
+        loadAlunoData();
+    }
+
+    // --- PROFESSOR ---
+    function showTab(tabId) {
+        ['tab-propostas', 'tab-orientacao', 'tab-banca', 'tab-finalizar'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById(tabId).classList.remove('hidden');
+        event.target.classList.add('active');
+        loadProfData(); // Recarrega dados ao trocar de aba
+    }
+
+    async function loadProfData() {
+        // 1. Propostas
+        const resProp = await fetch(API + '/tcc/propostas');
+        const propostas = await resProp.json();
+        document.getElementById('list-propostas').innerHTML = propostas.map(t => `
+            <div class="card">
+                <strong>${t.titulo}</strong> (${t.autor})<br>
+                <button onclick="aceitar('${t.id}')">Aceitar</button>
+            </div>
+        `).join('');
+
+        // 2. Meus Orientandos (Usado em Orientação, Banca e Finalizar)
+        const resMeus = await fetch(API + '/tcc/meus-orientandos', { headers: {'user-id': user.id}});
+        const meusTccs = await resMeus.json();
+
+        fillSelect('sel-orientacao-tcc', meusTccs, t => t.status === 'EM_ANDAMENTO');
+        fillSelect('sel-banca-tcc', meusTccs, t => t.status === 'EM_ANDAMENTO');
+        fillSelect('sel-final-tcc', meusTccs, t => t.status === 'AGUARDANDO_BANCA');
+
+        // 3. Lista de Professores (Para Banca)
+        const resProfs = await fetch(API + '/tcc/professores');
+        const profs = await resProfs.json();
+        const selProf = document.getElementById('sel-banca-membros');
+        selProf.innerHTML = profs.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+    }
+
+    function fillSelect(id, list, filterFn) {
+        const sel = document.getElementById(id);
+        sel.innerHTML = '<option value="">Selecione...</option>' +
+            list.filter(filterFn).map(t => `<option value="${t.id}">${t.titulo} - ${t.autor}</option>`).join('');
+    }
+
+    async function aceitar(idTcc) {
+        await fetch(`${API}/tcc/${idTcc}/orientar`, { method: 'POST', headers: {'user-id': user.id}});
+        loadProfData();
+    }
+
+    async function registrarOrientacao() {
+        const idTcc = document.getElementById('sel-orientacao-tcc').value;
+        const texto = document.getElementById('txt-orientacao').value;
+        await fetch(`${API}/tcc/${idTcc}/orientacao`, {
+            method: 'POST', headers: {'user-id': user.id}, body: texto
+        });
+        alert('Orientação registrada!');
+        document.getElementById('txt-orientacao').value = '';
+    }
+
+    async function definirBanca() {
+        const idTcc = document.getElementById('sel-banca-tcc').value;
+        const data = document.getElementById('date-banca').value;
+        const membros = Array.from(document.getElementById('sel-banca-membros').selectedOptions).map(o => o.value);
+
+        await fetch(`${API}/tcc/${idTcc}/banca`, {
+            method: 'POST',
+            headers: {'user-id': user.id, 'Content-Type': 'application/json'},
+            body: JSON.stringify({ data, membros })
+        });
+        alert('Banca definida!');
+        loadProfData();
+    }
+
+    async function finalizarTcc() {
+        const idTcc = document.getElementById('sel-final-tcc').value;
+        const nota = document.getElementById('nota-final').value;
+        const parecer = document.getElementById('parecer-final').value;
+
+        await fetch(`${API}/tcc/${idTcc}/finalizar`, {
+            method: 'POST',
+            headers: {'user-id': user.id, 'Content-Type': 'application/json'},
+            body: JSON.stringify({ nota, parecer })
+        });
+        alert('TCC Finalizado e ATA Gerada!');
+        loadProfData();
+    }
+</script>
+</body>
+</html>
