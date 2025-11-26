@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.TextFlow?>
+
+<!-- ATENÇÃO: Sem fx:controller definido aqui. Injetado via código. -->
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #333; -fx-padding: 10;">
+            <children>
+                <Label text="Portal do Aluno" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="lblNomeAluno" style="-fx-margin-right: 20;" text="Nome do Aluno" textFill="WHITE" />
+                <Button onAction="#fazerLogout" style="-fx-background-color: #f44336; -fx-text-fill: white;" text="Sair" />
+            </children>
+        </HBox>
+        <TabPane fx:id="tabPaneAluno" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <tabs>
+                <Tab fx:id="tabCadastrarTema" text="Cadastrar Proposta">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <VBox spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                                    <children>
+                                        <Label text="Nova Proposta de TCC">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Título do Trabalho:" />
+                                        <TextField fx:id="txtTituloTCC" promptText="Ex: Aplicação de POO Pura..." />
+                                        <Label text="Descrição e Objetivos:" />
+                                        <TextArea fx:id="txtDescricaoTCC" prefHeight="100.0" promptText="Descreva o escopo do trabalho..." wrapText="true" />
+                                        <Button onAction="#cadastrarTema" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Submeter Proposta" />
+                                        <Label fx:id="lblStatusCadastro" textFill="#0d630d" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="tabOrientacoes" text="Acompanhamento">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <VBox spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                                    <children>
+                                        <Label text="Status do Projeto">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lblTccStatusGeral" style="-fx-font-weight: bold; -fx-text-fill: #007bff;" text="Status: -" />
+                                        <Label fx:id="lblOrientadorNome" text="Orientador(a): -" />
+                                        <Label text="Histórico de Orientações:" />
+                                        <ListView fx:id="listaOrientacoes" prefHeight="250.0" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="tabBanca" text="Defesa e Notas">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <VBox spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                                    <children>
+                                        <Label text="Banca Examinadora e Resultado">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lblDataBanca" text="Data da Banca: -" />
+                                        <Label text="Membros da Banca:" />
+                                        <ListView fx:id="listaMembrosBanca" prefHeight="100.0" />
+                                        <Label fx:id="lblNotaFinal" text="Nota Final: -">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <TextFlow fx:id="textFlowStatusAta" />
+                                        <Label text="Parecer Final:" />
+                                        <TextArea fx:id="txtAnotacoesFinais" editable="false" prefHeight="100.0" wrapText="true" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</VBox>

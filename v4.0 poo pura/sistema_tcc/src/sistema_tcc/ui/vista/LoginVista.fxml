@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<!-- ATENÇÃO: Sem fx:controller definido aqui. Injetado via código. -->
+<VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #f4f4f4; -fx-padding: 40;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+
+    <padding>
+        <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+    </padding>
+
+    <Label text="Sistema TCC (V5.0 Pure OO)">
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
+    </Label>
+    <Label text="Filosofia Alan Kay: Objetos &amp; Mensagens" textFill="#666666" />
+
+    <GridPane alignment="CENTER" hgap="10.0" maxWidth="350.0" vgap="10.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+            <ColumnConstraints hgrow="ALWAYS" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+        </rowConstraints>
+        <children>
+            <!-- Linha 0 -->
+            <Label text="ID / Matrícula:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <TextField fx:id="txtLogin" promptText="Ex: 2025001 ou 111222" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+            <!-- Linha 1 -->
+            <Label text="Senha:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <PasswordField fx:id="txtSenha" promptText="Digite sua senha" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+            <!-- Linha 2 -->
+            <Button defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#btnLoginClick" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold;" text="Entrar no Sistema" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+
+        </children>
+    </GridPane>
+
+    <Label fx:id="lblStatus" style="-fx-text-fill: #d32f2f;" text="Aguardando login..." />
+</VBox>
