@@ -4,7 +4,7 @@ VISÃO GERAL DO PROJETO
 
 O Sistema para Organização de Trabalho de Conclusão de Curso (TCC) foi
 desenvolvido para auxiliar alunos e professores do Instituto Federal de
-Santa Catarina (Câmpus Garopaba) no fluxo completo do TCC, desde a proposta
+Santa Catarina (Câmpus Tubarão) no fluxo completo do TCC, desde a proposta
 do tema até a defesa e avaliação final.
 
 Esta versão (6.0) é uma aplicação WEB baseada em Spring Boot, mas com uma
