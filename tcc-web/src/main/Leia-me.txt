@@ -1,0 +1,103 @@
+================================================================================ SISTEMA TCC WEB (VERSÃO 6.1) - MANUAL TÉCNICO
+
+VISÃO GERAL E PROPÓSITO
+O Sistema de Gestão de TCC foi desenvolvido para apoiar o fluxo acadêmico de
+Trabalhos de Conclusão de Curso do IFSC. O sistema gerencia desde a proposta
+inicial do aluno, passando pelas orientações e agendamento de banca, até a
+avaliação final e geração automática da ATA de defesa.
+
+A arquitetura segue o paradigma de Programação Orientada a Objetos Pura (Rich Domain Model), onde a lógica de negócio reside nas entidades e não em
+classes de serviço.
+
+TECNOLOGIAS E ARQUITETURA
+
+Linguagem: Java 17
+
+Framework: Spring Boot 3.2 (Web, Data JPA)
+
+Banco de Dados: H2 (Em memória - recriado a cada execução)
+
+Gerador de Relatórios: OpenPDF (iText fork)
+
+Frontend: HTML5/CSS/JS (SPA)
+
+2.1. Estrutura de Pacotes (sistema_tcc)
+- dominio: Contém as Classes Ricas (Tcc, Aluno, Professor). Aqui estão as regras.
+- web: Contém a API REST (Controllers) e Geradores (AtaGenerator).
+- repositorio: Camada de persistência (Interfaces Spring Data).
+- dto: Objetos imutáveis para transferência de dados (Records).
+
+REGRAS DE NEGÓCIO IMPLEMENTADAS
+As regras estão encapsuladas nos métodos das classes de domínio:
+
+[RN01] Proposta de Tema:
+
+Apenas Alunos podem criar propostas.
+
+Status inicial é 'PROPOSTA'.
+
+Implementação: Aluno.criarProposta()
+
+[RN02] Aceite de Orientação:
+
+Apenas Professores podem aceitar orientar.
+
+O TCC deve estar no status 'PROPOSTA'.
+
+Muda status para 'EM_ANDAMENTO'.
+
+Implementação: Tcc.aceitarOrientador(Professor p)
+
+[RN03] Registro de Orientação:
+
+Apenas o Orientador vinculado ao TCC pode registrar.
+
+Requer data e descrição.
+
+Implementação: Tcc.receberOrientacao(Professor p, String texto)
+
+[RN04] Agendamento de Banca:
+
+Apenas o Orientador pode agendar.
+
+TCC deve estar 'EM_ANDAMENTO'.
+
+Muda status para 'AGUARDANDO_BANCA'.
+
+Implementação: Tcc.agendarBanca(Professor p, List<Professor> banca, LocalDate data)
+
+[RN05] Finalização e ATA:
+
+Apenas o Orientador pode lançar a nota.
+
+TCC deve estar 'AGUARDANDO_BANCA'.
+
+Muda status para 'FINALIZADO'.
+
+Gera documento PDF da ATA.
+
+Implementação: Tcc.receberNotaFinal(...)
+
+GUIA DE MANUTENÇÃO
+
+4.1. Adicionar novos campos ao TCC:
+1. Edite 'sistema_tcc.dominio.Tcc.java' (adicione atributo e getter).
+2. Edite 'sistema_tcc.dto.TccDTO.java' (adicione ao record).
+3. Edite 'src/main/resources/static/index.html' (adicione ao formulário/visualização).
+
+4.2. Alterar o layout da ATA (PDF):
+- Edite a classe 'sistema_tcc.web.AtaGenerator.java'. Todo o layout visual está lá.
+
+4.3. Alterar regras de aprovação (ex: nota mínima 7.0):
+- Edite o método 'getStatus()' na classe 'AtaGenerator' e/ou a lógica de validação
+dentro de 'Tcc.receberNotaFinal()'.
+
+EXECUÇÃO
+
+Execute a classe 'TccApplication'.
+
+Acesse http://localhost:8080
+
+Login Aluno: 2025001 / 123
+
+Login Professor: 111222 / 123
